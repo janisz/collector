@@ -141,6 +141,7 @@ def get_collector_counters(querier):
     """
     res = {}
     counters = ["net_conn_deltas", "net_conn_updates", "net_conn_inactive"]
+    counters += ["net_cep_deltas", "net_cep_updates", "net_cep_inactive"]
 
     for counter in counters:
         query = f'(rox_collector_counters{{type="{counter}"}})'
