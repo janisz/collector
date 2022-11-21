@@ -15,4 +15,7 @@ export KUBECONFIG="$artifacts_dir"/kubeconfig
 "$DIR"/wait-for-pods.sh "$artifacts_dir"
 "$DIR"/grab-bundle.sh "$artifacts_dir"
 "$DIR"/start-secured-cluster.sh "$artifacts_dir" "$collector_image_registry" "$collector_image_tag"
+#kubectl set env ds/collector ROX_PROCESSES_LISTENING_ON_PORT=true --namespace stackrox
+#kubectl set env deployment/central ROX_PROCESSES_LISTENING_ON_PORT=true --namespace stackrox
+#kubectl set env deployment/sensor ROX_PROCESSES_LISTENING_ON_PORT=true --namespace stackrox
 "$DIR"/turn-on-monitoring.sh "$artifacts_dir"

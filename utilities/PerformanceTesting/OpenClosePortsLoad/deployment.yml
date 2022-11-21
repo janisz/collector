@@ -1,21 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: processes-listening-on-ports
+  name: open-close-ports-load
+  #namespace: ports-load-test
   labels:
-    app: processes-listening-on-ports
+    app: open-close-ports-load
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: processes-listening-on-ports
+      app: open-close-ports-load
   template:
     metadata:
       labels:
-        app: processes-listening-on-ports
+        app: open-close-ports-load
     spec:
       imagePullSecrets:
       - name: myregistrykey
       containers:
-      - name: processes-listening-on-ports
-        image: quay.io/rhacs-eng/qa:collector-processes-listening-on-ports-3.11.x-134-g9f36bc1377
+      - name: open-close-ports-load
+        image: quay.io/rhacs-eng/qa:collector-open-close-ports-load-test5

@@ -210,6 +210,17 @@ def get_cpu_mem_network_usage(querier, query_window):
     cpu_query_name = 'cpu_usage'
     res[cpu_query_name] = querier.get_stats_for_query(cpu_query)
 
+    #collector_cpu_query = f'(rate(container_cpu_usage_seconds_total{{pod=~"collector-.*"}}[{query_window}]) * 100)'
+    #collector_cpu_query_name = 'collector_cpu_usage'
+    #res[collector_cpu_query_name] = querier.get_stats_for_query(collector_cpu_query)
+
+    components = ['collector', 'sensor', 'central', 'scanner']
+
+    for component in components:
+        component_cpu_query = f'(rate(container_cpu_usage_seconds_total{{pod=~"{component}-.*"}}[{query_window}]) * 100)'
+        component_cpu_query_name = f'{component}_cpu_usage'
+        res[component_cpu_query_name] = querier.get_stats_for_query(component_cpu_query)
+
     mem_query = '(container_memory_usage_bytes{namespace="stackrox"})'
     mem_query_name = 'mem_usage'
     res[mem_query_name] = querier.get_stats_for_query(mem_query)

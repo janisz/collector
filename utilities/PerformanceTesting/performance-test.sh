@@ -1,5 +1,19 @@
 #!/usr/bin/env bash
-set -eou pipefail
+set -eoux pipefail
+
+#cluster_name=$1
+#test_dir=$2
+#load_test_name=$3
+#num_streams=$4
+#collector_versions_file=${5:-collector_versions.txt}
+#num_ports=$6
+#num_per_second=$7
+#teardown_script=${8:-$TEARDOWN_SCRIPT}
+#nrepeat=${9:-5}
+#sleep_after_start_stack_rox=${10:-60}
+#load_duration=${11:-600}
+#query_window=${12:-10m}
+#artifacts_dir=${13:-/tmp/artifacts-"${cluster_name}"}
 
 cluster_name=$1
 test_dir=$2
@@ -11,18 +25,22 @@ nrepeat=${7:-5}
 sleep_after_start_stack_rox=${8:-60}
 load_duration=${9:-600}
 query_window=${10:-10m}
-artifacts_dir=${11:-/tmp/artifacts}
+artifacts_dir=${11:-/tmp/artifacts-"${cluster_name}"}
 
 DIR="$(cd "$(dirname "$0")" && pwd)"
 
-"$DIR"/create-infra.sh "$cluster_name" openshift-4 7h
+"$DIR"/create-infra.sh "$cluster_name" openshift-4 48h
 "$DIR"/wait-for-cluster.sh "$cluster_name"
 "$DIR"/get-artifacts-dir.sh "$cluster_name" "$artifacts_dir"
 export KUBECONFIG="$artifacts_dir"/kubeconfig
 if ((num_streams > 0)); then
+    kubectl delete ds knb-monitor || true
+    kubectl delete pod knb-cli || true
+    kubectl delete pod knb-srv || true
     knb_base_dir="$(mktemp -d)"
     "$DIR/initialize-kubenetbench.sh" "$artifacts_dir" "$load_test_name" "$knb_base_dir"
 fi
+#"$DIR"/OpenClosePortsLoad/start-open-close-ports-load.sh "$artifacts_dir" "$num_ports" "$num_per_second"
 
 mkdir -p "$test_dir"
 
@@ -37,6 +55,7 @@ for ((n = 0; n < nrepeat; n = n + 1)); do
         if ((num_streams > 0)); then
             "$DIR/generate-load.sh" "$artifacts_dir" "$load_test_name" "$num_streams" "$knb_base_dir" "$load_duration"
         fi
+	kubectl get pod --namespace stackrox
         query_output="$test_dir/results_${nick_name}_${n}.json"
         "$DIR"/query.sh "$query_output" "$artifacts_dir" "$query_window"
     done < "$collector_versions_file"
@@ -47,6 +66,7 @@ printf 'yes\n'  | $teardown_script
 if ((num_streams > 0)); then
     "$DIR/teardown-kubenetbench.sh" "$artifacts_dir" "$knb_base_dir"
 fi
+#"$DIR"/OpenClosePortsLoad/stop-open-close-ports-load.sh "$artifacts_dir"
 
 while read -r -a line; do
     nick_name="${line[2]}"
