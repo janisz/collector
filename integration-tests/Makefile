@@ -19,6 +19,7 @@ ci-integration-tests: process-network image-label-json
 ci-integration-tests: repeat-network missing-proc-scrape procfsscraper
 ci-integration-tests: process-listening-on-port
 ci-integration-tests: symbolic-link-process
+ci-integration-tests: many-processes-listening-on-ports 
 
 .PHONY: docker-clean
 docker-clean:

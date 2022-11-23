@@ -155,7 +155,8 @@ ci-integration-tests: integration-tests-repeat-network \
 					  integration-tests-procfsscaper \
 					  integration-tests-process-listening-on-port \
 					  integration-tests-symbolic-link-process \
-					  integration-tests-socat
+					  integration-tests-socat \
+					  integration-tests-many-processes-listening-on-ports
 
 .PHONY: ci-benchmarks
 ci-benchmarks: integration-tests-baseline \
