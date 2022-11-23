@@ -95,6 +95,13 @@ socat: docker-clean
 	go test -timeout 90m -count=1 -v \
 	  -run TestSocat 2>&1 | tee -a integration-test.log
 
+.PHONY: many-processes-listening-on-ports
+many-processes-listening-on-ports: docker-clean
+	go version
+	set -o pipefail ; \
+	go test -timeout 90m -count=1 -v \
+	  -run TestManyProcessesListeningOnPorts 2>&1 | tee -a integration-test.log
+
 LOG_FILE ?= integration-test.log
 .PHONY: report
 report:

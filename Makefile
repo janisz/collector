@@ -138,6 +138,11 @@ integration-tests-socat:
 	make -C integration-tests socat ||\
 		( .openshift-ci/slack/notify-if-needed.sh "socat" $$? )
 
+.PHONY: integration-tests-many-processes-listening-on-ports
+integration-tests-many-processes-listening-on-ports:
+	make -C integration-tests many-processes-listening-on-ports ||\
+		( .openshift-ci/slack/notify-if-needed.sh "socat" $$? )
+
 .PHONY: integration-tests-report
 integration-tests-report:
 	make -C integration-tests report
