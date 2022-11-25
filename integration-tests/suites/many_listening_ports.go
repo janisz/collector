@@ -1,7 +1,6 @@
 package suites
 
 import (
-	"fmt"
 	"regexp"
 	"strconv"
 	"time"
@@ -39,12 +38,7 @@ func (s *ManyProcessesListeningOnPortsTestSuite) SetupSuite() {
 	//containerID, err := s.launchContainer("socat", processImage, "/bin/sh", "-c", "sleep 10000")
 	containerID, err := s.launchContainer("socat", processImage, "sleep", "10000")
 
-	for port := 1; port <= s.NumPorts; port++ {
-		if port % 100 == 0 {
-			fmt.Println(port)
-		}
-		_, err = s.execContainer("socat", []string{"/bin/sh", "-c", "socat TCP-LISTEN:" + strconv.Itoa(port) + ",fork STDOUT &"})
-	}
+	_, err = s.execContainer("socat", []string{"/bin/sh", "-c", "for port in $(seq " + strconv.Itoa(s.NumPorts) + "); do socat TCP-LISTEN:${port},fork STDOUT & done"})
 
 	s.Require().NoError(err)
 	s.serverContainer = common.ContainerShortID(containerID)
@@ -73,14 +67,14 @@ func (s *ManyProcessesListeningOnPortsTestSuite) TestManyProcessesListeningOnPor
 
 	assert.Equal(s.T(), s.NumPorts, len(endpoints))
 
-	assert.Equal(s.T(), 2 * s.NumPorts + 1, len(processes))
+	assert.Equal(s.T(), s.NumPorts + 3, len(processes)) // sleep + sh -c + seq
 
 	processMap := getSocatProcessesByPort(processes)
 	endpointMap := getEndpointsByPort(endpoints)
 
 	for port := 1; port <= s.NumPorts; port++ {
-		//assert.Equal(s.T(), 1, len(endpointMap[port]))
-		//assert.Equal(s.T(), 1, len(processMap[port]))
+		assert.Equal(s.T(), 1, len(endpointMap[port]))
+		assert.Equal(s.T(), 1, len(processMap[port]))
 		assert.Equal(s.T(), "L4_PROTOCOL_TCP", endpointMap[port][0].Protocol)
 		assert.Equal(s.T(), endpointMap[port][0].Originator.ProcessName, processMap[port][0].Name)
 		assert.Equal(s.T(), endpointMap[port][0].Originator.ProcessExecFilePath, processMap[port][0].ExePath)
