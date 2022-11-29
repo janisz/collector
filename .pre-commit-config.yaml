@@ -16,3 +16,8 @@ repos:
     rev: "6230247"
     hooks:
       - id: clang-format
+
+  - repo: git@github.com:rhysd/actionlint
+    rev: v1.6.22
+    hooks:
+      - id: actionlint-docker
